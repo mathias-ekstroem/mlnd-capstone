@@ -30,7 +30,7 @@ class Agent(object):
         self.action_space = 0
         self.observation_space = 0
 
-        self.local_actor = None
+        self.local_actor = Actor()
         self.target_actor = None
         self.local_critic = None
         self.target_critic = None
