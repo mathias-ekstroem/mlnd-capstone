@@ -26,5 +26,4 @@ class Agent(object):
     def step(self, obs):
         self.steps += 1
         self.reward += obs.reward
-
         return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])

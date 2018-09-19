@@ -1,9 +1,11 @@
+import random
+
+from absl import app
 from pysc2.agents import base_agent
 from pysc2.env import sc2_env
 from pysc2.lib import actions, features, units
-from absl import app
 
-import random
+import scripted_agents.agent_utils as util
 
 
 class ZergAgent(base_agent.BaseAgent):
@@ -12,21 +14,6 @@ class ZergAgent(base_agent.BaseAgent):
         super(ZergAgent, self).__init__()
 
         self.attack_coordinates = None
-
-    def unit_type_is_selected(self, obs, unit_type):
-        if len(obs.observation.single_select) > 0 and obs.observation.single_select[0].unit_type == unit_type:
-            return True
-
-        if len(obs.observation.multi_select) > 0 and obs.observation.multi_select[0].unit_type == unit_type:
-            return True
-
-        return False
-
-    def get_units_by_type(self, obs, unit_type):
-        return [unit for unit in obs.observation.feature_units if unit.unit_type == unit_type]
-
-    def can_do(self, obs, action):
-        return action in obs.observation.available_actions
 
     def step(self, obs):
         super(ZergAgent, self).step(obs)
@@ -43,24 +30,22 @@ class ZergAgent(base_agent.BaseAgent):
             else:
                 self.attack_coordinates = (12, 16)
 
-        
-
         # select army of zerglings in order to attack
-        zerglings = self.get_units_by_type(obs, units.Zerg.Zergling)
+        zerglings = util.get_units_by_type(obs, units.Zerg.Zergling)
         if len(zerglings) > 10:
             # if we selected our army of zerglings in the previous step we can now attack at the defined coordinates
-            if self.can_do(obs, actions.FUNCTIONS.Attack_minimap.id):
+            if util.can_do(obs, actions.FUNCTIONS.Attack_minimap.id):
                 return actions.FUNCTIONS.Attack_minimap('now', self.attack_coordinates)
 
-            if self.can_do(obs, actions.FUNCTIONS.select_army.id):
+            if util.can_do(obs, actions.FUNCTIONS.select_army.id):
                 return actions.FUNCTIONS.select_army('select')
 
         # build exactly one spawning pool
-        spawning_pools = self.get_units_by_type(obs, units.Zerg.SpawningPool)
+        spawning_pools = util.get_units_by_type(obs, units.Zerg.SpawningPool)
         if len(spawning_pools) == 0:
-            if self.unit_type_is_selected(obs, units.Zerg.Drone):
+            if util.unit_type_is_selected(obs, units.Zerg.Drone):
                 # check the build spawning pool action is available, otherwise the environment will throw an exception
-                if self.can_do(obs, actions.FUNCTIONS.Build_SpawningPool_screen.id):
+                if util.can_do(obs, actions.FUNCTIONS.Build_SpawningPool_screen.id):
                     # select a random point on screen to build the spawning pool
                     # hopefully if will be in a place with some creep
                     x = random.randint(0, 83)
@@ -69,7 +54,7 @@ class ZergAgent(base_agent.BaseAgent):
                     return actions.FUNCTIONS.Build_SpawningPool_screen('now', (x, y))
 
             # get a list of drones via the feature_units
-            drones = self.get_units_by_type(obs, units.Zerg.Drone)
+            drones = util.get_units_by_type(obs, units.Zerg.Drone)
 
             if len(drones) > 0:
                 drone = random.choice(drones)
@@ -84,17 +69,17 @@ class ZergAgent(base_agent.BaseAgent):
         # build overlord if we've run of unit capacity
         free_supply = (obs.observation.player.food_cap - obs.observation.player.food_used)
         if free_supply == 0:
-            if self.can_do(obs, actions.FUNCTIONS.Train_Overlord_quick.id):
+            if util.can_do(obs, actions.FUNCTIONS.Train_Overlord_quick.id):
                 return actions.FUNCTIONS.Train_Overlord_quick('now')
 
         # build zerglings
-        if self.unit_type_is_selected(obs, units.Zerg.Larva):
+        if util.unit_type_is_selected(obs, units.Zerg.Larva):
             # check we have enough resources and unit capacity to build a zergling
-            if self.can_do(obs, actions.FUNCTIONS.Train_Zergling_quick.id):
+            if util.can_do(obs, actions.FUNCTIONS.Train_Zergling_quick.id):
                 return actions.FUNCTIONS.Train_Zergling_quick('now')
 
         # select available larvae
-        larvae = self.get_units_by_type(obs, units.Zerg.Larva)
+        larvae = util.get_units_by_type(obs, units.Zerg.Larva)
         if len(larvae) > 0:
             larva = random.choice(larvae)
             return actions.FUNCTIONS.select_point("select_all_type", (larva.x, larva.y))
