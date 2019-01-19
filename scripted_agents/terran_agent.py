@@ -14,30 +14,50 @@ class TerranAgent(base_agent.BaseAgent):
         super(TerranAgent, self).__init__()
         self.n_supply_depots = 0
         self.n_scvs = 0
+        self.n_barracks = 0
+        self.first_supply_depots = False
         self.idle_worker_selected = False
+        self.barracks_build = False
 
     def step(self, obs):
         super(TerranAgent, self).step(obs)
 
+        # update unit and base counts
+        self.update_base_counts(obs)
+        self.update_unit_counts(obs)
+
         # get the idle worker back to mining
-        if self.idle_worker_selected:
-            self.idle_worker_selected = False
-            if util.can_do(obs, actions.FUNCTIONS.select_point.id):
-                # get location of minerals
-                obs.observation.feature_screen
+        # if self.idle_worker_selected:
+        #     self.idle_worker_selected = False
+        #     if util.can_do(obs, actions.FUNCTIONS.select_point.id):
+        #         # get location of minerals
+        #         obs.observation.feature_screen
 
         # select idle worker and return them to mining
-        if util.can_do(obs, actions.FUNCTIONS.select_idle_worker.id):
-            self.idle_worker_selected = True
-            return actions.FUNCTIONS.select_idle_worker()
+        # if util.can_do(obs, actions.FUNCTIONS.select_idle_worker.id):
+        #     self.idle_worker_selected = True
+        #     return actions.FUNCTIONS.select_idle_worker()
 
-        # build a supply depot
-        if util.can_do(obs, actions.FUNCTIONS.Build_SupplyDepot_screen.id):
-            # select the point at which to build the supply depot
-            x = random.randint(1, 83)
-            y = random.randint(1, 83)
+        if self.n_supply_depots >= 2:
+            if util.can_do(obs, actions.FUNCTIONS.Build_Barracks_screen):
+                return actions.FUNCTIONS.Build_Barracks_screen('now')
+        elif self.n_supply_depots < 2 and not self.first_supply_depots:
+            if util.can_do(obs, actions.FUNCTIONS.Build_SupplyDepot_screen.id):
+                # select the point at which to build the supply depot
+                x = random.randint(2, 80)
+                y = random.randint(2, 80)
 
-            return actions.FUNCTIONS.Build_SupplyDepot_screen('now', (x, y))
+                return actions.FUNCTIONS.Build_SupplyDepot_screen('now', (x, y))
+
+        # build a supply depot when out of food
+        free_supply = (obs.observation.player.food_cap - obs.observation.player.food_used)
+        if free_supply == 0:
+            if util.can_do(obs, actions.FUNCTIONS.Build_SupplyDepot_screen.id):
+                # select the point at which to build the supply depot
+                x = random.randint(2, 80)
+                y = random.randint(2, 80)
+
+                return actions.FUNCTIONS.Build_SupplyDepot_screen('now', (x, y))
 
         # select scv's
         scv = util.get_random_unit_by_type(obs, units.Terran.SCV)
@@ -45,6 +65,13 @@ class TerranAgent(base_agent.BaseAgent):
             return actions.FUNCTIONS.select_point('select', (scv.x, scv.y))
 
         return actions.FUNCTIONS.no_op()
+
+    def update_unit_counts(self, obs):
+        self.n_scvs = len(util.get_units_by_type(obs, units.Terran.SCV))
+
+    def update_base_counts(self, obs):
+        self.n_supply_depots = len(util.get_units_by_type(obs, units.Terran.SupplyDepot))
+        self.n_barracks = len(util.get_units_by_type(obs, units.Terran.Barracks))
 
 
 def main(unused):

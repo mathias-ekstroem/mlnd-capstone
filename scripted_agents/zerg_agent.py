@@ -32,7 +32,7 @@ class ZergAgent(base_agent.BaseAgent):
 
         # select army of zerglings in order to attack
         zerglings = util.get_units_by_type(obs, units.Zerg.Zergling)
-        if len(zerglings) > 10:
+        if len(zerglings) > 20:
             # if we selected our army of zerglings in the previous step we can now attack at the defined coordinates
             if util.can_do(obs, actions.FUNCTIONS.Attack_minimap.id):
                 return actions.FUNCTIONS.Attack_minimap('now', self.attack_coordinates)
