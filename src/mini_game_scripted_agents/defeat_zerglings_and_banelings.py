@@ -6,14 +6,14 @@ from pysc2.lib import actions, units
 from scripted_agents import agent_utils as utils
 
 
-class MoveToBeaconRandomAgent(base_agent.BaseAgent):
+class DefeatZerglingsAndBanelingsRandomAgent(base_agent.BaseAgent):
 
     def __init__(self):
-        super(MoveToBeaconRandomAgent, self).__init__()
+        super(DefeatZerglingsAndBanelingsRandomAgent, self).__init__()
         self.score = None
 
     def step(self, obs):
-        super(MoveToBeaconRandomAgent, self).step(obs)
+        super(DefeatZerglingsAndBanelingsRandomAgent, self).step(obs)
 
         x = random.randint(0, 63)
         y = random.randint(0, 63)

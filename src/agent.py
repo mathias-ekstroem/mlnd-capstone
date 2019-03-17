@@ -6,11 +6,9 @@ from __future__ import print_function
 
 import numpy as np
 
-from pysc2.lib import actions, features
-from pysc2.env import environment, available_actions_printer
+from pysc2.lib import actions
 
-from agents.actor import Actor
-from agents.critic import Critic
+from agents import Actor
 
 """
 it seems like this agent thing is kind of similar to the task script from

@@ -1,11 +1,7 @@
-import keras
-import tensorflow as tf
 import numpy as np
-import random
 
 from pysc2.agents import base_agent
-from pysc2.env import sc2_env
-from pysc2.lib import actions, features, units
+from pysc2.lib import actions
 
 from ou_noise import OUNoise
 from replay_buffer import ReplayBuffer
