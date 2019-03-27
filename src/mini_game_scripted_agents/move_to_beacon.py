@@ -9,6 +9,7 @@ from pysc2.lib import actions, units, features
 from scripted_agents import agent_utils as utils
 
 
+# maybe this one can be used for sampling random actions from the environment
 class MoveToBeaconRandomAgent(base_agent.BaseAgent):
 
     def __init__(self):

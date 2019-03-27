@@ -20,3 +20,8 @@ $ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scri
 ```shell
 $ python -m pysc2.bin.play --map Simple64
 ```
+
+
+
+### good sources of inspiration
+https://github.com/pekaalto/sc2aibot.git
